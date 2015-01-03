@@ -9,8 +9,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.DragShadowBuilder;
 import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import es.mesa.bingu.config.Level;
 
@@ -26,9 +27,12 @@ public class MainActivity extends Activity {
 
 	private final String TAG = "MainActivity";
 	private final String TAG_VALUE = "value";
-	private int current_level;
+	private int current_level = 1;
+	private long current_time;
+	private boolean running=false;
 	
 	TextView txt_level;
+	Chronometer chrono;
 	
 	TextView b1;
 	TextView b2;
@@ -47,6 +51,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		txt_level = (TextView) findViewById(R.id.txtLevel);
+		chrono = (Chronometer) findViewById(R.id.chronometer);
 		
 		b1 = (TextView) findViewById(R.id.b1);
 		b2 = (TextView) findViewById(R.id.b2);
@@ -99,7 +104,12 @@ public class MainActivity extends Activity {
 	private final class MyTouchListener implements OnTouchListener {
 		public boolean onTouch(View view, MotionEvent motionEvent) {
 			if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-
+				if (!running) {
+					running=true;
+					current_time=SystemClock.elapsedRealtime();
+					chrono.setBase(current_time);
+					chrono.start();
+				}
 				//Integer.decode(("" + ((TextView) view).getText()));
 				/*
 				 * Drag details: we only need default behavior - clip data could
@@ -143,16 +153,30 @@ public class MainActivity extends Activity {
 				View view = (View) event.getLocalState();
 				TextView dropTarget = (TextView) v;
 				TextView dropped = (TextView) view;
-
-				dropTarget.setText(""
-					+ getDiference(dropTarget.getText(),dropped.getText()));
-				dropTarget.setTypeface(Typeface.DEFAULT_BOLD);
 				
-				if (dropTarget.getText().toString().equalsIgnoreCase("0")) {
+				int result=getDiference(dropTarget.getText(),dropped.getText());
+				if (result==0) {
+					dropTarget.setText(""+ result);
+					dropTarget.setTypeface(Typeface.DEFAULT_BOLD);
+					
+					running=false;
+					chrono.stop();
+//					Log.d(TAG, "--> Tiempo1: "+chrono.getBase());
+//					Log.d(TAG, "--> Tiempo2: "+new Date(chrono.getBase()));
+					current_time=SystemClock.elapsedRealtime()-current_time;
+					Log.d(TAG, "--> Tiempo3: "+current_time/1000);
 					victoryCondition();					
 				}
 				else {
-					new MyThread(Level.LEVELS[current_level]).run();
+					if (current_level<6) {
+						if (result>100)	dropTarget.setText(""+ (result-100));
+						else if (result<-100) dropTarget.setText(""+ (result+100));
+						else dropTarget.setText(""+ result);
+						dropped.setText("" + firstLevelRandom(Level.LEVELS[current_level]));
+					}else{
+						dropTarget.setText(""+ result);
+						new MyThread(Level.LEVELS[current_level]).run();
+					}
 				}
 				
 				break;
@@ -165,7 +189,7 @@ public class MainActivity extends Activity {
 			return true;
 		}		
 	}
-
+	
 	private int generateRandom() {
 		Random rd = new Random();
 		if (rd.nextDouble() > 0.5)
@@ -183,41 +207,24 @@ public class MainActivity extends Activity {
 	private void timerRandom() {
 		
 	}
-
+	private int firstLevelRandom(int level){
+		Random rd = new Random();
+		int nd = rd.nextInt(6);
+		if (nd < 3 || nd > 4){
+			int nxt = rd.nextInt(level);
+			return (nxt==0?nxt+1:nxt);
+		}
+		int nxt = rd.nextInt(level);
+		return 0 - (nxt==0?nxt+1:nxt);		
+	}
 	private int getDiference(CharSequence value, CharSequence minus) {
 		return Integer.decode("" + value) + Integer.decode("" + minus);
 	}
 
-	private class MyThread extends Thread {
-		private int lvl;
-				
-		public MyThread(int lvl) {
-			super();
-			this.lvl = lvl;
-		}
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			super.run();
-			int value = Integer.decode(puntuacion.getText().toString());
-			
-			b1.setText("" + generateRandom(lvl));
-			b2.setText("" + generateRandom(lvl));
-			b3.setText("" + generateRandom(lvl));
-			b4.setText("" + generateRandom(lvl));
-			b5.setText("" + generateRandom(lvl-(lvl/2)));
-			b6.setText("" + generateRandom(lvl));
-			b7.setText("" + generateRandom(lvl));
-			b8.setText("" + 9);
-			
-			
-		}
-	}
 	private Dialog winnerDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.dialog_title_win);
-		builder.setMessage(R.string.dialog_content_win);
+		builder.setMessage((current_time/1000)+" seg");
 		builder.setPositiveButton(R.string.dialog_option_ok, new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				Log.i("winnerDialog", "New game.");
@@ -239,7 +246,7 @@ public class MainActivity extends Activity {
 	private Dialog endGame() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.dialog_title_win);
-		builder.setMessage("You win the game!!");
+		builder.setMessage(R.string.dialog_message_win);
 		builder.setPositiveButton("OK", new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
@@ -248,7 +255,8 @@ public class MainActivity extends Activity {
 		return builder.create();
 	}
 	private void init() {
-		current_level=10;
+		Log.d(TAG, "Init...");
+//		current_level=1;
 		txt_level.setText(Level.LABEL_LEVEL+current_level);
 		puntuacion.setText("" + generateRandom(Level.LEVELS[current_level]));
 		new MyThread(Level.LEVELS[current_level]).run();
@@ -267,11 +275,229 @@ public class MainActivity extends Activity {
 	private void nextLevel(){
 			current_level++;
 			txt_level.setText(Level.LABEL_LEVEL + current_level);
+			chrono.setBase(SystemClock.elapsedRealtime());
 			puntuacion.setText("" + generateRandom(Level.LEVELS[current_level]));
 			new MyThread(Level.LEVELS[current_level]).run();		
 	}
 	private void victoryCondition() {
 		if (current_level<11) winnerDialog().show();
 		else endGame().show();
+	}
+	
+	/**
+	 * Level Configuration class
+	 * @author OMA
+	 *
+	 */
+	private class MyThread extends Thread {
+		private int lvl;
+				
+		public MyThread(int lvl) {
+			super();
+			this.lvl = lvl;
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			super.run();
+			int value = Integer.decode(puntuacion.getText().toString());
+			
+			levels(lvl);			
+		}
+		
+		private void levels(int level){
+			Log.d(TAG, " ##### level: "+level);
+			if (level<100) {
+				if (level==10) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.GONE);
+					b5.setVisibility(android.view.View.GONE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.GONE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b6.setText("" + firstLevelRandom(level));
+					b8.setText("" + 2);
+				} else if (level==20) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.VISIBLE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.GONE);
+					b5.setVisibility(android.view.View.GONE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.GONE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + firstLevelRandom(level));
+					b2.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b6.setText("" + firstLevelRandom(level));
+					b8.setText("" + 6);
+				} else if (level==30) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.VISIBLE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.GONE);
+					b5.setVisibility(android.view.View.GONE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + firstLevelRandom(level));
+					b2.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b6.setText("" + firstLevelRandom(level));
+					b7.setText("" + firstLevelRandom(level));
+					b8.setText("" + 10);
+				}else if (level==40) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.GONE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b4.setText("" + firstLevelRandom(level));
+					b5.setText("" + firstLevelRandom(level));
+					b6.setText("" + firstLevelRandom(level));
+					b8.setText("" + 15);
+				}else if (level==50) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + firstLevelRandom(level));
+					b2.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b4.setText("" + firstLevelRandom(level));
+					b5.setText("" + firstLevelRandom(level));
+					b6.setText("" + firstLevelRandom(level));
+					b7.setText("" + firstLevelRandom(level));
+					b8.setText("" + 18);
+				}else if (level==60) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.VISIBLE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + generateRandom(level-(level/2)));
+					b2.setText("" + generateRandom(level));
+					b3.setText("" + generateRandom(level));
+					b4.setText("" + generateRandom(level));
+					b5.setText("" + generateRandom(level-(level/2)));
+					b6.setText("" + generateRandom(level));
+					b7.setText("" + generateRandom(level-(level/2)));
+					b8.setText("" + 24);
+				}else if (level==70) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.GONE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + generateRandom(level));
+					b2.setText("" + generateRandom(level));
+					b3.setText("" + generateRandom(level));
+					b4.setText("" + generateRandom(level));
+					b5.setText("" + generateRandom(level-(level/2)));
+					b6.setText("" + generateRandom(level));
+					b7.setText("" + generateRandom(level));
+					b8.setText("" + 9);
+				}else if (level==80) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + generateRandom(level));
+					b2.setText("" + generateRandom(level));
+					b3.setText("" + generateRandom(level));
+					b4.setText("" + generateRandom(level));
+					b5.setText("" + generateRandom(level-(level/2)));
+					b6.setText("" + generateRandom(level));
+					b7.setText("" + generateRandom(level));
+					b8.setText("" + 9);
+				}else if (level==90) {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.GONE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + generateRandom(level));
+					b2.setText("" + generateRandom(level));
+					b3.setText("" + generateRandom(level));
+					b4.setText("" + generateRandom(level));
+					b5.setText("" + generateRandom(level-(level/2)));
+					b6.setText("" + generateRandom(level));
+					b7.setText("" + generateRandom(level));
+					b8.setText("" + 9);
+				} else {
+					b1.setVisibility(android.view.View.VISIBLE);
+					b2.setVisibility(android.view.View.VISIBLE);
+					b3.setVisibility(android.view.View.VISIBLE);
+					b4.setVisibility(android.view.View.VISIBLE);
+					b5.setVisibility(android.view.View.VISIBLE);
+					b6.setVisibility(android.view.View.VISIBLE);
+					b7.setVisibility(android.view.View.VISIBLE);
+					b8.setVisibility(android.view.View.VISIBLE);
+					
+					b1.setText("" + generateRandom(level));
+					b2.setText("" + generateRandom(level));
+					b3.setText("" + generateRandom(level));
+					b4.setText("" + generateRandom(level));
+					b5.setText("" + generateRandom(level-(level/2)));
+					b6.setText("" + generateRandom(level));
+					b7.setText("" + generateRandom(level));
+					b8.setText("" + 9);
+				}
+			} else {
+				b1.setVisibility(android.view.View.VISIBLE);
+				b2.setVisibility(android.view.View.VISIBLE);
+				b3.setVisibility(android.view.View.VISIBLE);
+				b4.setVisibility(android.view.View.VISIBLE);
+				b5.setVisibility(android.view.View.VISIBLE);
+				b6.setVisibility(android.view.View.VISIBLE);
+				b7.setVisibility(android.view.View.VISIBLE);
+				b8.setVisibility(android.view.View.VISIBLE);
+				
+				b1.setText("" + generateRandom(level));
+				b2.setText("" + generateRandom(level));
+				b3.setText("" + generateRandom(level));
+				b4.setText("" + generateRandom(level));
+				b5.setText("" + generateRandom(level-(level/2)));
+				b6.setText("" + generateRandom(level));
+				b7.setText("" + generateRandom(level));
+				b8.setText("" + 9);
+			}			
+		}
 	}
 }

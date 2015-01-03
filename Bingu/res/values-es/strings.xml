@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bingu</string>
+    <string name="action_settings">Opciones</string>
+    <string name="hello_world">Hola Oscar!</string>
+    <string name="dialog_title_win">Ganaste!</string>
+    <string name="dialog_message_win">Has ganado la partida!!</string>
+    <string name="dialog_content_win">Jugar otra vez?</string>
+    <string name="dialog_option_ok">Siguiente Nivel</string>
+    <string name="dialog_option_no">Salir</string>
+	
+    <string name="main_activity_text_level">Nivel: </string>
+    <string name="main_activity_text_time">Tiempo: </string>
+</resources>

@@ -5,8 +5,12 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="dialog_title_win">Winner</string>
+    <string name="dialog_message_win">You win the game!!</string>
     <string name="dialog_content_win">Play again?</string>
     <string name="dialog_option_ok">Next Level</string>
     <string name="dialog_option_no">Exit</string>
-
+	
+    <string name="main_activity_text_level">Level: </string>
+    <string name="main_activity_text_time">Time: </string>
+    
 </resources>

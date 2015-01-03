@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="ring"
-android:innerRadius="27dp"
-android:thickness="5dp"
+android:innerRadius="25dp"
+android:thickness="2dp"
 android:useLevel="false">
 
-<!-- <solid android:color="#ababf2" /> -->
+<solid android:color="@color/Violet" />
 
 </shape>
