@@ -12,4 +12,18 @@
 	
     <string name="main_activity_text_level">Nivel: </string>
     <string name="main_activity_text_time">Tiempo: </string>
+    
+    <string name="presentation_activity_text_title">Bienvenido a Bingu</string>
+    <string name="presentation_activity_btn_instructions">Instrucciones</string>
+    <string name="presentation_activity_btn_play">Jugar</string>
+    <string name="presentation_activity_btn_exit">Hasta pronto!</string>
+    <string name="presentation_activity_txt_contact">Contacta me</string>
+    
+    <string name="presentation_activity_email_title">Bingu App contanto</string>
+    <string name="presentation_activity_email_client">Elige un cliente de correo&#8230;</string>
+    <string name="presentation_activity_email_client_fail">No se encuentra ningún cliente de correo instalado.</string>
+    
+    <string name="dialog_instructions_title">Instrucciones</string>
+    <string name="dialog_instructions_text">El objetivo del juego es dejar a cero el marcador del circulo del centro en el menor tiempo posible. Arrastra los circulos para sumar o restar al valor central. Cada nivel tiene distintos comportamientos que pueden ayudarte a finalizar antes si los identificas. Fácil verdad?</string>
+    <string name="dialog_instructions_btn">Back</string>
 </resources>

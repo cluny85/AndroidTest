@@ -168,25 +168,27 @@ public final class R {
         public static final int activity_vertical_margin=0x7f040001;
     }
     public static final class drawable {
-        public static final int bingu_logo=0x7f020000;
-        public static final int circle_shape=0x7f020001;
-        public static final int circle_shape_1=0x7f020002;
-        public static final int circle_shape_2=0x7f020003;
-        public static final int circle_shape_3=0x7f020004;
-        public static final int circle_shape_4=0x7f020005;
-        public static final int circle_shape_5=0x7f020006;
-        public static final int circle_shape_6=0x7f020007;
-        public static final int circle_shape_7=0x7f020008;
-        public static final int circle_shape_8=0x7f020009;
-        public static final int circle_shape_drop=0x7f02000a;
-        public static final int ic_launcher=0x7f02000b;
-        public static final int screen_background_black=0x7f02000c;
-        public static final int translucent_background=0x7f02000d;
-        public static final int transparent_background=0x7f02000e;
-        public static final int yellow=0x7f02000f;
+        public static final int andro_hipster=0x7f020000;
+        public static final int bingu_logo=0x7f020001;
+        public static final int bingu_main_logo=0x7f020002;
+        public static final int circle_shape=0x7f020003;
+        public static final int circle_shape_1=0x7f020004;
+        public static final int circle_shape_2=0x7f020005;
+        public static final int circle_shape_3=0x7f020006;
+        public static final int circle_shape_4=0x7f020007;
+        public static final int circle_shape_5=0x7f020008;
+        public static final int circle_shape_6=0x7f020009;
+        public static final int circle_shape_7=0x7f02000a;
+        public static final int circle_shape_8=0x7f02000b;
+        public static final int circle_shape_drop=0x7f02000c;
+        public static final int mail_28x=0x7f02000d;
+        public static final int screen_background_black=0x7f02000e;
+        public static final int translucent_background=0x7f02000f;
+        public static final int transparent_background=0x7f020010;
+        public static final int yellow=0x7f020011;
     }
     public static final class id {
-        public static final int action_settings=0x7f09000d;
+        public static final int action_settings=0x7f090015;
         public static final int b1=0x7f090002;
         public static final int b2=0x7f090003;
         public static final int b3=0x7f090004;
@@ -196,13 +198,23 @@ public final class R {
         public static final int b7=0x7f090007;
         public static final int b8=0x7f090008;
         public static final int chronometer=0x7f09000b;
+        public static final int dialog_btn_ok=0x7f090014;
+        public static final int dialog_text=0x7f090013;
         public static final int gameLayout=0x7f090001;
+        public static final int presentation_btn_email=0x7f09000f;
+        public static final int presentation_btn_exit=0x7f090012;
+        public static final int presentation_btn_instructions=0x7f090010;
+        public static final int presentation_btn_play=0x7f090011;
+        public static final int presentation_txt_email=0x7f09000e;
+        public static final int presentation_txt_title=0x7f09000d;
         public static final int txtLevel=0x7f090000;
         public static final int txtTime=0x7f09000c;
         public static final int txt_puntuacion=0x7f090009;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
+        public static final int activity_presentation=0x7f030001;
+        public static final int dialog_instructions=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -211,6 +223,9 @@ public final class R {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int dialog_content_win=0x7f060005;
+        public static final int dialog_instructions_btn=0x7f060014;
+        public static final int dialog_instructions_text=0x7f060013;
+        public static final int dialog_instructions_title=0x7f060012;
         public static final int dialog_message_win=0x7f060004;
         public static final int dialog_option_no=0x7f060007;
         public static final int dialog_option_ok=0x7f060006;
@@ -218,6 +233,14 @@ public final class R {
         public static final int hello_world=0x7f060002;
         public static final int main_activity_text_level=0x7f060008;
         public static final int main_activity_text_time=0x7f060009;
+        public static final int presentation_activity_btn_exit=0x7f06000d;
+        public static final int presentation_activity_btn_instructions=0x7f06000b;
+        public static final int presentation_activity_btn_play=0x7f06000c;
+        public static final int presentation_activity_email_client=0x7f060010;
+        public static final int presentation_activity_email_client_fail=0x7f060011;
+        public static final int presentation_activity_email_title=0x7f06000f;
+        public static final int presentation_activity_text_title=0x7f06000a;
+        public static final int presentation_activity_txt_contact=0x7f06000e;
     }
     public static final class style {
         /** 

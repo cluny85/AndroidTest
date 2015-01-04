@@ -199,9 +199,12 @@ public class MainActivity extends Activity {
 
 	private int generateRandom(int n) {
 		Random rd = new Random();
-		if (rd.nextDouble() > 0.5)
-			return new Random().nextInt(n);
-		return 0 - new Random().nextInt(n);
+		if (rd.nextDouble() > 0.5){
+			int nxt = rd.nextInt(n);
+			return (nxt==0?nxt+1:nxt);
+		}	
+		int nxt = rd.nextInt(n);
+		return 0 - (nxt==0?nxt+1:nxt);
 	}
 
 	private void timerRandom() {

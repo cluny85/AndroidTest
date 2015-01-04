@@ -65,31 +65,34 @@
             android:text="0" />
 
         <TextView
-            android:id="@+id/b6"            
+            android:id="@+id/b6"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
+            android:layout_marginBottom="34dp"
             android:background="@drawable/circle_shape_6"
             android:gravity="center"
             android:text="0" />
 
         <TextView
-            android:id="@+id/b7"            
+            android:id="@+id/b7"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="34dp"
             android:background="@drawable/circle_shape_7"
             android:gravity="center"
             android:text="0" />
 
         <TextView
-            android:id="@+id/b8"            
+            android:id="@+id/b8"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
+            android:layout_marginBottom="34dp"
             android:background="@drawable/circle_shape_8"
             android:gravity="center"
             android:text="0" />
