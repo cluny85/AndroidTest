@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.DragShadowBuilder;
 import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import es.mesa.bingu.config.Level;
@@ -27,6 +28,7 @@ public class MainActivity extends Activity {
 
 	private final String TAG = "MainActivity";
 	private final String TAG_VALUE = "value";
+	private final int NUM_OF_CIRCLES=8;
 	private int current_level = 1;
 	private long current_time;
 	private boolean running=false;
@@ -34,22 +36,16 @@ public class MainActivity extends Activity {
 	TextView txt_level;
 	Chronometer chrono;
 	
-	TextView b1;
-	TextView b2;
-	TextView b3;
-	TextView b4;
-	TextView b5;
-	TextView b6;
-	TextView b7;
-	TextView b8;
-
-	TextView puntuacion;
+	TextView b1,b2,b3,b4,b5,b6,b7,b8,puntuacion;
+	
+	Object[] mapCircles;
+	int[] mapValues={0,0,0,0,0,0,0,0};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);		
 		txt_level = (TextView) findViewById(R.id.txtLevel);
 		chrono = (Chronometer) findViewById(R.id.chronometer);
 		
@@ -61,7 +57,9 @@ public class MainActivity extends Activity {
 		b6 = (TextView) findViewById(R.id.b6);
 		b7 = (TextView) findViewById(R.id.b7);
 		b8 = (TextView) findViewById(R.id.b8);
-
+		Object[] mapCircles={b1,b2,b3,b4,b5,b6,b7,b8};
+		this.mapCircles=mapCircles;
+		
 		puntuacion = (TextView) findViewById(R.id.txt_puntuacion);
 
 		b1.setOnTouchListener(new MyTouchListener());
@@ -76,26 +74,29 @@ public class MainActivity extends Activity {
 		puntuacion.setOnDragListener(new MyDragListener());
 		puntuacion.setText("Time: ");
 		
-		setBackgroundTexts();
-		
+		loadLevelConfig();
+	}
+
+	private void loadLevelConfig() {
+		setBackgroundTexts(
+				R.drawable.circle_shape_1,R.drawable.circle_shape_2,
+				R.drawable.circle_shape_3,R.drawable.circle_shape_4,
+				R.drawable.circle_shape_5,R.drawable.circle_shape_6,
+				R.drawable.circle_shape_7,R.drawable.circle_shape_8);		
 	}
 
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();		
 		init();
-		//puntuacion.setText("" + generateRandom(500));
-		//new MyThread().run();
-
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.main, menu);
+//		return true;
+//	}
 
 	/**
 	 * ChoiceTouchListener will handle touch events on draggable views
@@ -161,24 +162,10 @@ public class MainActivity extends Activity {
 					
 					running=false;
 					chrono.stop();
-//					Log.d(TAG, "--> Tiempo1: "+chrono.getBase());
-//					Log.d(TAG, "--> Tiempo2: "+new Date(chrono.getBase()));
 					current_time=SystemClock.elapsedRealtime()-current_time;
-					Log.d(TAG, "--> Tiempo3: "+current_time/1000);
 					victoryCondition();					
 				}
-				else {
-					if (current_level<6) {
-						if (result>100)	dropTarget.setText(""+ (result-100));
-						else if (result<-100) dropTarget.setText(""+ (result+100));
-						else dropTarget.setText(""+ result);
-						dropped.setText("" + firstLevelRandom(Level.LEVELS[current_level]));
-					}else{
-						dropTarget.setText(""+ result);
-						new MyThread(Level.LEVELS[current_level]).run();
-					}
-				}
-				
+				else gameWork(dropTarget,dropped,result);
 				break;
 			case DragEvent.ACTION_DRAG_ENDED:
 				v.setBackgroundDrawable(normalShape);
@@ -187,33 +174,82 @@ public class MainActivity extends Activity {
 				break;
 			}
 			return true;
-		}		
+		}
 	}
 	
-	private int generateRandom() {
-		Random rd = new Random();
-		if (rd.nextDouble() > 0.5)
-			return new Random().nextInt(current_level);
-		return 0 - new Random().nextInt(current_level);
+	public void gameWork(TextView dropTarget, TextView dropped, int result) {
+		if (current_level<6) {
+			if (result>100)	dropTarget.setText(""+ (result-100));
+			else if (result<-100) dropTarget.setText(""+ (result+100));
+			else dropTarget.setText(""+ result);
+			dropped.setText("" + firstLevelRandom(Level.LEVELS[current_level]));
+		}else if(current_level>5&&current_level<10){
+			dropTarget.setText(""+ result);
+			new MyThread(Level.LEVELS[current_level]).run();			
+		} else{
+			dropTarget.setText(""+ result);
+			new MyThread(Level.LEVELS[current_level]).run();
+		}
 	}
-
-	private int generateRandom(int n) {
-		Random rd = new Random();
-		if (rd.nextDouble() > 0.5){
-			int nxt = rd.nextInt(n);
-			return (nxt==0?nxt+1:nxt);
-		}	
-		int nxt = rd.nextInt(n);
-		return 0 - (nxt==0?nxt+1:nxt);
+	/*
+	 * Funciones a futuro
+	 */	
+	private void rotateCirclesRight(){
+		rotateRightArray(mapValues);
+		updateMapValues();
 	}
-
-	private void timerRandom() {
-		
+	private int[] rotateRightArray(int[] arr){
+		//shift to the right
+		Integer last = (Integer)arr[arr.length-1];
+		System.arraycopy(arr, 0, arr, 1, arr.length-1 );
+		arr[0] = last;
+		return arr;
 	}
+	private void updateMapValues(){
+		for (int i = 0; i < mapCircles.length; i++) 
+			((TextView)mapCircles[i]).setText(""+mapValues[i]);
+	}
+	private void changeValue(TextView tv,int value){
+		tv.setText(""+value);
+	}
+	private void changeImproveValue(TextView tv,int value){
+		for (int i = 0; i < mapCircles.length; i++) {
+			if (tv.equals(mapCircles[i])) {
+				tv.setText(""+value);
+				break;
+			}
+		}
+	}
+	private void changeMapValue(TextView tv,int value){
+		for (int i = 0; i < mapCircles.length; i++) {
+			if (tv.equals(mapCircles[i])) {
+				mapValues[i]=value;
+				tv.setText(""+value);
+				break;
+			}
+		}
+	}
+	private void setCirclesVisibility(int...state){
+		if (state.length==NUM_OF_CIRCLES) {
+			for (int i = 0; i < mapCircles.length; i++) 
+				((TextView)mapCircles[i]).setVisibility(state[i]);
+		}else{
+			//default
+			Log.e(TAG, "Error. Lenght of the function expected different than 8");
+			for (int i = 0; i < mapCircles.length; i++) 
+				((TextView)mapCircles[i]).setVisibility(View.VISIBLE);
+		}
+	}
+	private int[] makeArray(int... res){
+		return res;
+	}
+	/*
+	 * Fin funciones a futuro
+	 */
 	private int firstLevelRandom(int level){
 		Random rd = new Random();
 		int nd = rd.nextInt(6);
-		if (nd < 3 || nd > 4){
+		if (nd == 1 || nd == 3 || nd == 5 ){
 			int nxt = rd.nextInt(level);
 			return (nxt==0?nxt+1:nxt);
 		}
@@ -223,7 +259,26 @@ public class MainActivity extends Activity {
 	private int getDiference(CharSequence value, CharSequence minus) {
 		return Integer.decode("" + value) + Integer.decode("" + minus);
 	}
-
+	/*
+	 * Main functions
+	 */
+	private void init() {
+		Log.d(TAG, "Init...");
+		txt_level.setText(Level.LABEL_LEVEL+current_level);
+		puntuacion.setText("" + firstLevelRandom(Level.LEVELS[current_level]));
+		new MyThread(Level.LEVELS[current_level]).run();
+	}
+	private void nextLevel(){
+		current_level++;
+		txt_level.setText(Level.LABEL_LEVEL + current_level);
+		chrono.setBase(SystemClock.elapsedRealtime());
+		puntuacion.setText("" + firstLevelRandom(Level.LEVELS[current_level]));
+		new MyThread(Level.LEVELS[current_level]).run();		
+}
+	private void victoryCondition() {
+		if (current_level<11) winnerDialog().show();
+		else endGame().show();
+	}
 	private Dialog winnerDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.dialog_title_win);
@@ -233,7 +288,7 @@ public class MainActivity extends Activity {
 				Log.i("winnerDialog", "New game.");
 				dialog.cancel();
 				nextLevel();
-				//puntuacion.setText(""+generateRandom(999));
+				//puntuacion.setText(""+firstLevelRandom(999));
 			}
 		});
 		builder.setNegativeButton(R.string.dialog_option_no, new OnClickListener() {
@@ -257,35 +312,27 @@ public class MainActivity extends Activity {
 		});
 		return builder.create();
 	}
-	private void init() {
-		Log.d(TAG, "Init...");
-//		current_level=1;
-		txt_level.setText(Level.LABEL_LEVEL+current_level);
-		puntuacion.setText("" + generateRandom(Level.LEVELS[current_level]));
-		new MyThread(Level.LEVELS[current_level]).run();
+	/*
+	 * End Main functions
+	 */
+	private void setBackgroundTexts(int... resource) {
+		if (resource.length==NUM_OF_CIRCLES) {
+			for (int i = 0; i < resource.length; i++) {
+				((TextView)mapCircles[i]).setBackgroundDrawable(getResources().getDrawable(resource[i]));
+			}
+		}else{
+//			b1.setBackgroundColor(getResources().getColor(R.color.Orange));
+//			b2.setBackgroundColor(getResources().getColor(R.color.Cian));
+//			b3.setBackgroundColor(getResources().getColor(R.color.Red));
+//			b4.setBackgroundColor(getResources().getColor(R.color.solid_green));
+//			b5.setBackgroundColor(getResources().getColor(R.color.solid_green));
+//			b6.setBackgroundColor(getResources().getColor(R.color.solid_yellow));
+//			b7.setBackgroundColor(getResources().getColor(R.color.solid_red));
+//			b8.setBackgroundColor(getResources().getColor(R.color.Cian));		
+			
+		}		
 	}
-	private void setBackgroundTexts() {
-		
-//		b1.setBackgroundColor(getResources().getColor(R.color.Orange));
-//		b2.setBackgroundColor(getResources().getColor(R.color.Cian));
-//		b3.setBackgroundColor(getResources().getColor(R.color.Red));
-//		b4.setBackgroundColor(getResources().getColor(R.color.solid_green));
-//		b5.setBackgroundColor(getResources().getColor(R.color.solid_green));
-//		b6.setBackgroundColor(getResources().getColor(R.color.solid_yellow));
-//		b7.setBackgroundColor(getResources().getColor(R.color.solid_red));
-//		b8.setBackgroundColor(getResources().getColor(R.color.Cian));		
-	}
-	private void nextLevel(){
-			current_level++;
-			txt_level.setText(Level.LABEL_LEVEL + current_level);
-			chrono.setBase(SystemClock.elapsedRealtime());
-			puntuacion.setText("" + generateRandom(Level.LEVELS[current_level]));
-			new MyThread(Level.LEVELS[current_level]).run();		
-	}
-	private void victoryCondition() {
-		if (current_level<11) winnerDialog().show();
-		else endGame().show();
-	}
+	
 	
 	/**
 	 * Level Configuration class
@@ -305,164 +352,49 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 			super.run();
 			int value = Integer.decode(puntuacion.getText().toString());
-			
 			levels(lvl);			
 		}
 		
 		private void levels(int level){
 			Log.d(TAG, " ##### level: "+level);
-			if (level<100) {
-				if (level==10) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.GONE);
-					b5.setVisibility(android.view.View.GONE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.GONE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + firstLevelRandom(level));
-					b3.setText("" + firstLevelRandom(level));
-					b6.setText("" + firstLevelRandom(level));
-					b8.setText("" + 2);
-				} else if (level==20) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.VISIBLE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.GONE);
-					b5.setVisibility(android.view.View.GONE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.GONE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + firstLevelRandom(level));
-					b2.setText("" + firstLevelRandom(level));
-					b3.setText("" + firstLevelRandom(level));
-					b6.setText("" + firstLevelRandom(level));
-					b8.setText("" + 6);
-				} else if (level==30) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.VISIBLE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.GONE);
-					b5.setVisibility(android.view.View.GONE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.VISIBLE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + firstLevelRandom(level));
-					b2.setText("" + firstLevelRandom(level));
-					b3.setText("" + firstLevelRandom(level));
-					b6.setText("" + firstLevelRandom(level));
-					b7.setText("" + firstLevelRandom(level));
-					b8.setText("" + 10);
-				}else if (level==40) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.GONE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + firstLevelRandom(level));
-					b3.setText("" + firstLevelRandom(level));
-					b4.setText("" + firstLevelRandom(level));
-					b5.setText("" + firstLevelRandom(level));
-					b6.setText("" + firstLevelRandom(level));
-					b8.setText("" + 15);
-				}else if (level==50) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.VISIBLE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + firstLevelRandom(level));
-					b2.setText("" + firstLevelRandom(level));
-					b3.setText("" + firstLevelRandom(level));
-					b4.setText("" + firstLevelRandom(level));
-					b5.setText("" + firstLevelRandom(level));
-					b6.setText("" + firstLevelRandom(level));
-					b7.setText("" + firstLevelRandom(level));
-					b8.setText("" + 18);
-				}else if (level==60) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.VISIBLE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.VISIBLE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + generateRandom(level-(level/2)));
-					b2.setText("" + generateRandom(level));
-					b3.setText("" + generateRandom(level));
-					b4.setText("" + generateRandom(level));
-					b5.setText("" + generateRandom(level-(level/2)));
-					b6.setText("" + generateRandom(level));
-					b7.setText("" + generateRandom(level-(level/2)));
-					b8.setText("" + 24);
-				}else if (level==70) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.GONE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + generateRandom(level));
-					b2.setText("" + generateRandom(level));
-					b3.setText("" + generateRandom(level));
-					b4.setText("" + generateRandom(level));
-					b5.setText("" + generateRandom(level-(level/2)));
-					b6.setText("" + generateRandom(level));
-					b7.setText("" + generateRandom(level));
-					b8.setText("" + 9);
-				}else if (level==80) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.VISIBLE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + generateRandom(level));
-					b2.setText("" + generateRandom(level));
-					b3.setText("" + generateRandom(level));
-					b4.setText("" + generateRandom(level));
-					b5.setText("" + generateRandom(level-(level/2)));
-					b6.setText("" + generateRandom(level));
-					b7.setText("" + generateRandom(level));
-					b8.setText("" + 9);
-				}else if (level==90) {
-					b1.setVisibility(android.view.View.VISIBLE);
-					b2.setVisibility(android.view.View.GONE);
-					b3.setVisibility(android.view.View.VISIBLE);
-					b4.setVisibility(android.view.View.VISIBLE);
-					b5.setVisibility(android.view.View.VISIBLE);
-					b6.setVisibility(android.view.View.VISIBLE);
-					b7.setVisibility(android.view.View.VISIBLE);
-					b8.setVisibility(android.view.View.VISIBLE);
-					
-					b1.setText("" + generateRandom(level));
-					b2.setText("" + generateRandom(level));
-					b3.setText("" + generateRandom(level));
-					b4.setText("" + generateRandom(level));
-					b5.setText("" + generateRandom(level-(level/2)));
-					b6.setText("" + generateRandom(level));
-					b7.setText("" + generateRandom(level));
-					b8.setText("" + 9);
+			if (current_level<10) {
+				if (current_level==1) {
+					//0->VISIBLE, 8->GONE
+					setCirclesVisibility(0,8,0,8,8,0,8,0);
+					mapValues=makeArray(firstLevelRandom(level),0,firstLevelRandom(level),0,0,firstLevelRandom(level),0,2);
+					updateMapValues();
+				} else if (current_level==2) {
+					setCirclesVisibility(0,0,0,8,8,0,8,0);
+					mapValues=makeArray(firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),0,0,firstLevelRandom(level),0,6);
+					updateMapValues();
+				} else if (current_level==3) {
+					setCirclesVisibility(0,0,0,8,8,0,0,0);
+					mapValues=makeArray(firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),0,0,firstLevelRandom(level),firstLevelRandom(level),8);
+					updateMapValues();
+				}else if (current_level==4) {
+					setCirclesVisibility(0,8,0,0,0,0,8,0);
+					mapValues=makeArray(firstLevelRandom(level),0,firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),0,15);
+					updateMapValues();
+				}else if (current_level==5) {
+					setCirclesVisibility(0,8,0,0,0,0,0,0);
+					mapValues=makeArray(firstLevelRandom(level),0,firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),18);
+					updateMapValues();
+				}else if (current_level==6) {
+					setCirclesVisibility(0,0,0,0,0,0,0,0);
+					mapValues=makeArray(firstLevelRandom(level-(level/2)),firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level-(level/2)),firstLevelRandom(level),firstLevelRandom(level-(level/2)),5);
+					updateMapValues();
+				}else if (current_level==7) {
+					setCirclesVisibility(0,8,0,0,0,0,8,0);
+					mapValues=makeArray(firstLevelRandom(level),0,firstLevelRandom(level),firstLevelRandom(level),firstLevelRandom(level-(level/2)),firstLevelRandom(level),0,9);
+					updateMapValues();
+				}else if (current_level==8) {
+					setCirclesVisibility(0,8,0,0,0,0,0,0);
+					mapValues=makeArray(firstLevelRandom(level*2),0,firstLevelRandom(level-40),firstLevelRandom(level),firstLevelRandom(level-(level/2)),-firstLevelRandom(level),firstLevelRandom(level),9);
+					updateMapValues();
+				}else if (current_level==9) {
+					setCirclesVisibility(0,8,0,0,0,0,0,0);
+					mapValues=makeArray(firstLevelRandom(level-60),0,firstLevelRandom(level-45),-firstLevelRandom(level),firstLevelRandom(level-(level/2)),9,firstLevelRandom(level),firstLevelRandom(level*2));
+					updateMapValues();
 				} else {
 					b1.setVisibility(android.view.View.VISIBLE);
 					b2.setVisibility(android.view.View.VISIBLE);
@@ -473,16 +405,22 @@ public class MainActivity extends Activity {
 					b7.setVisibility(android.view.View.VISIBLE);
 					b8.setVisibility(android.view.View.VISIBLE);
 					
-					b1.setText("" + generateRandom(level));
-					b2.setText("" + generateRandom(level));
-					b3.setText("" + generateRandom(level));
-					b4.setText("" + generateRandom(level));
-					b5.setText("" + generateRandom(level-(level/2)));
-					b6.setText("" + generateRandom(level));
-					b7.setText("" + generateRandom(level));
+					b1.setText("" + firstLevelRandom(level));
+					b2.setText("" + firstLevelRandom(level));
+					b3.setText("" + firstLevelRandom(level));
+					b4.setText("" + firstLevelRandom(level));
+					b5.setText("" + firstLevelRandom(level-(level/2)));
+					b6.setText("" + firstLevelRandom(level));
+					b7.setText("" + firstLevelRandom(level));
 					b8.setText("" + 9);
 				}
 			} else {
+				//level >100
+				setBackgroundTexts(
+						R.drawable.circle_shape_3,R.drawable.circle_shape_8,
+						R.drawable.circle_shape_5,R.drawable.circle_shape_2,
+						R.drawable.circle_shape_7,R.drawable.circle_shape_4,
+						R.drawable.circle_shape_1,R.drawable.circle_shape_6);
 				b1.setVisibility(android.view.View.VISIBLE);
 				b2.setVisibility(android.view.View.VISIBLE);
 				b3.setVisibility(android.view.View.VISIBLE);
@@ -492,13 +430,13 @@ public class MainActivity extends Activity {
 				b7.setVisibility(android.view.View.VISIBLE);
 				b8.setVisibility(android.view.View.VISIBLE);
 				
-				b1.setText("" + generateRandom(level));
-				b2.setText("" + generateRandom(level));
-				b3.setText("" + generateRandom(level));
-				b4.setText("" + generateRandom(level));
-				b5.setText("" + generateRandom(level-(level/2)));
-				b6.setText("" + generateRandom(level));
-				b7.setText("" + generateRandom(level));
+				b1.setText("" + firstLevelRandom(level));
+				b2.setText("" + firstLevelRandom(level));
+				b3.setText("" + firstLevelRandom(level));
+				b4.setText("" + firstLevelRandom(level));
+				b5.setText("" + firstLevelRandom(level-(level/2)));
+				b6.setText("" + firstLevelRandom(level));
+				b7.setText("" + firstLevelRandom(level));
 				b8.setText("" + 9);
 			}			
 		}

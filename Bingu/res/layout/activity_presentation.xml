@@ -24,38 +24,45 @@
 
     <Button
         android:id="@+id/presentation_btn_instructions"
-        android:layout_width="wrap_content"
+        android:layout_width="260dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/presentation_txt_title"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="70dp"
-        android:text="@string/presentation_activity_btn_instructions" />
+        android:background="@drawable/btn_arrow"
+        android:text="@string/presentation_activity_btn_instructions"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/presentation_btn_play"
-        android:layout_width="wrap_content"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/presentation_btn_instructions"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
-        android:text="@string/presentation_activity_btn_play" />
+        android:background="@drawable/btn_arrow"
+        android:text="@string/presentation_activity_btn_play"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/presentation_btn_exit"
-        android:layout_width="wrap_content"
+        android:layout_width="190dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/presentation_btn_play"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
-        android:text="@string/presentation_activity_btn_exit" />
+        android:background="@drawable/btn_arrow"
+        android:text="@string/presentation_activity_btn_exit"
+        android:textStyle="bold" />
 
     <ImageButton
         android:id="@+id/presentation_btn_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
-        android:layout_toLeftOf="@+id/presentation_btn_instructions"
+        android:layout_marginBottom="40dp"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/presentation_txt_email"
         android:background="@drawable/transparent_background"
         android:src="@drawable/mail_28x" />
 

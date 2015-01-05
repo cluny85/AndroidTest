@@ -1,7 +1,10 @@
 package es.mesa.bingu.config;
 
-public final class Level {
-	public final static int []LEVELS = {0,10,20,30,40,50,60,70,80,90,100,110,120};
+
+public class Level {
+	public final static int []LEVELS = {
+		0,10,20,30,40,50,60,70,80,90,100,
+		110,120,130,140,150,160,170,180,190,200};
 	
 	public final static int LEVEL_1 = 10;
 	public final static int LEVEL_2 = 20;
@@ -16,5 +19,6 @@ public final class Level {
 	public final static int LEVEL_11 = 110;
 	public final static int LEVEL_12 = 120;
 	
-	public final static String LABEL_LEVEL = "Level: ";
+	public final static String LABEL_LEVEL = "Level: ";	
+	
 }
